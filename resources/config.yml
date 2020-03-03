@@ -1,0 +1,8 @@
+---
+mysql:
+  host: "127.0.0.1"
+  username: "root"
+  password: "ShockNetwork123@"
+  schema: "hcf"
+  port: 3306
+...
