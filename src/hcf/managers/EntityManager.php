@@ -16,7 +16,8 @@ class EntityManager {
      *
      * @param Loader $core
      */
-    public function __construct(Loader $core){
+    public function __construct(Loader $core) {
+        $this->core = $core;
         $this->init();
     }
 
