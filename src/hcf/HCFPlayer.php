@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace hcf;
 
+use hcf\rank\Rank;
 use pocketmine\Player;
 
 class HCFPlayer extends Player {
 
     /** @var Loader */
     private $core;
+//
+//    private $faction;
+//
+//    /** @var int */
+//    private $factionRole;
 
     /** @var int */
     private $balance;
 
     /** @var int */
     private $lives;
+
+    /** @var bool */
+    private $reclaim;
+
+    /** @var Rank */
+    private $rank;
 
     /**
      * @param Loader $core
@@ -26,14 +38,18 @@ class HCFPlayer extends Player {
         if($this->checkDeathBan() === true) {
             return;
         }
-        $stmt = $this->core->getProvider()->getDatabase()->prepare("SELECT balance, lives FROM players WHERE uuid = ?");
+        $stmt = $this->core->getProvider()->getDatabase()->prepare("SELECT faction, factionRole, balance, lives, reclaim FROM players WHERE uuid = ?");
         $stmt->bind_param("s", $uuid);
         $stmt->execute();
-        $stmt->bind_result($balance, $lives);
+        $stmt->bind_result($faction, $factioNRole, $balance, $lives, $reclaim);
         $stmt->fetch();
         $stmt->close();
+//        $this->faction =; // TODO
+//        $this->factionRole =; // TODO
         $this->balance = $balance;
         $this->lives = $lives;
+        $this->reclaim = (bool)$reclaim;
+
     }
 
     public function register(): void {
@@ -60,10 +76,64 @@ class HCFPlayer extends Player {
     }
 
     public function checkDeathBan(): bool {
-        // TODO: Get death ban time... Check if available for deathban
-        // After ranks are made
-        // Return true if player is death banned, else return false
+        $stmt = $this->core->getProvider()->getDatabase()->prepare("SELECT rankId FROM players WHERE uuid = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($rankId);
+        $stmt->fetch();
+        $stmt->close();
+        $this->rank = $this->core->getRankManager()->getRank($rankId);
+        $stmt = $this->core->getProvider()->getDatabase()->prepare("SELECT time FROM deathban WHERE uuid = ?");
+        $stmt->bind_param("s", $uuid);
+        $stmt->execute();
+        $stmt->bind_result($time);
+        $stmt->fetch();
+        $stmt->close();
+        if((time() - $time) < $this->rank->getDeathBanTime()) {
+            $this->close("TODO: Death ban message");
+            return true;
+        }
+        return false;
     }
+
+//    /**
+//     * @return mixed|null
+//     */
+//    public function getFaction() { // TODO
+//        return $this->faction;
+//    }
+//
+//    /**
+//     * @param mixed|null $faction
+//     */
+//    public function setFaction(?$faction): void { // TODO: Type hint $faction
+//        $this->faction = $faction;
+//        $faction = $faction instanceof  ? $faction->getName() : null;
+//        $uuid = $this->getRawUniqueId();
+//        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET faction = ? WHERE uuid = ?");
+//        $stmt->bind_param("ss", $faction, $uuid);
+//        $stmt->execute();
+//        $stmt->close();
+//    }
+//
+//    /**
+//     * @return int|null
+//     */
+//    public function getFactionRole(): ?int {
+//        return $this->factionRole;
+//    }
+//
+//    /**
+//     * @param int|null $role
+//     */
+//    public function setFactionRole(?int $role): void {
+//        $this->factionRole = $role;
+//        $uuid = $this->getRawUniqueId();
+//        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET factionRole = ? WHERE uuid = ?");
+//        $stmt->bind_param("is", $role, $uuid);
+//        $stmt->execute();
+//        $stmt->close();
+//    }
 
     /**
      * @return int
@@ -147,6 +217,26 @@ class HCFPlayer extends Player {
         $uuid = $this->getRawUniqueId();
         $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET lives = ? WHERE uuid = ?");
         $stmt->bind_param("is", $amount, $uuid);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasReclaimed(): bool {
+        return $this->reclaim;
+    }
+
+    /**
+     * @param bool $value
+     */
+    public function setReclaimed(bool $value = true): void {
+        $this->reclaim = $value;
+        $value = (int)$value;
+        $uuid = $this->getRawUniqueId();
+        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET reclaim = ? WHERE uuid = ?");
+        $stmt->bind_param("is", $value, $uuid);
         $stmt->execute();
         $stmt->close();
     }

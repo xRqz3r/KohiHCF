@@ -3,11 +3,20 @@
 namespace hcf\managers;
 
 use hcf\entity\projectile\EnderPearl;
+use hcf\Loader;
 use pocketmine\entity\Entity;
 
 class EntityManager {
 
-    public function __construct(){
+    /** @var Loader */
+    private $core;
+
+    /**
+     * EntityManager constructor.
+     *
+     * @param Loader $core
+     */
+    public function __construct(Loader $core){
         $this->init();
     }
 

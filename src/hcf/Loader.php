@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace hcf;
 
+use hcf\level\LevelManager;
 use hcf\managers\EntityManager;
 use hcf\provider\MySQLProvider;
+use hcf\rank\RankManager;
 use pocketmine\plugin\PluginBase;
 
 class Loader extends PluginBase {
@@ -15,6 +17,15 @@ class Loader extends PluginBase {
 
     /** @var MySQLProvider */
     private $provider;
+
+    /** @var EntityManager */
+    private $entityManager;
+
+    /** @var LevelManager */
+    private $levelManager;
+
+    /** @var RankManager */
+    private $rankManager;
 
     /**
      * @return Loader
@@ -33,11 +44,9 @@ class Loader extends PluginBase {
 
     public function onEnable(): void {
         $this->provider = new MySQLProvider($this);
-    }
-    
-    public function getManagers(){
-        new EntityManager();
-        new CommandManager();
+        $this->entityManager = new EntityManager($this);
+        $this->levelManager = new LevelManager($this);
+        $this->rankManager = new RankManager($this);
     }
 
     /**
@@ -45,5 +54,26 @@ class Loader extends PluginBase {
      */
     public function getProvider(): MySQLProvider {
         return $this->provider;
+    }
+
+    /**
+     * @return EntityManager
+     */
+    public function getEntityManager(): EntityManager {
+        return $this->entityManager;
+    }
+
+    /**
+     * @return LevelManager
+     */
+    public function getLevelManager(): LevelManager {
+        return $this->levelManager;
+    }
+
+    /**
+     * @return RankManager
+     */
+    public function getRankManager(): RankManager {
+        return $this->rankManager;
     }
 }
