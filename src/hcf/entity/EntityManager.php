@@ -1,8 +1,9 @@
 <?php
 
-namespace hcf\managers;
+namespace hcf\entity;
 
 use hcf\entity\projectile\EnderPearl;
+use hcf\entity\projectile\SwitcherBallProjectile;
 use hcf\Loader;
 use pocketmine\entity\Entity;
 
@@ -23,5 +24,6 @@ class EntityManager {
 
     private function init(): void{
         Entity::registerEntity(EnderPearl::class, false, ['ThrownEnderpearl', 'minecraft:ender_pearl']);
+        Entity::registerEntity(SwitcherBallProjectile::class, true);
     }
 }

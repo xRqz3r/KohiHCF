@@ -30,6 +30,9 @@ class EventListener implements Listener {
      */
     public function onPlayerJoin(PlayerJoinEvent $event): void {
         $player = $event->getPlayer();
+        if(!$player instanceof HCFPlayer) {
+            return;
+        }
         $player->load($this->core);
         $event->setJoinMessage(null);
     }

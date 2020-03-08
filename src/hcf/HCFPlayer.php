@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace hcf;
 
+use hcf\faction\Faction;
 use hcf\rank\Rank;
 use pocketmine\Player;
 
@@ -11,11 +12,12 @@ class HCFPlayer extends Player {
 
     /** @var Loader */
     private $core;
-//
-//    private $faction;
-//
-//    /** @var int */
-//    private $factionRole;
+
+    /** @var null|Faction */
+    private $faction = null;
+
+    /** @var null|int */
+    private $factionRole = null;
 
     /** @var int */
     private $balance;
@@ -41,11 +43,18 @@ class HCFPlayer extends Player {
         $stmt = $this->core->getProvider()->getDatabase()->prepare("SELECT faction, factionRole, balance, lives, reclaim FROM players WHERE uuid = ?");
         $stmt->bind_param("s", $uuid);
         $stmt->execute();
-        $stmt->bind_result($faction, $factioNRole, $balance, $lives, $reclaim);
+        $stmt->bind_result($faction, $factionRole, $balance, $lives, $reclaim);
         $stmt->fetch();
         $stmt->close();
-//        $this->faction =; // TODO
-//        $this->factionRole =; // TODO
+        if($faction !== null) {
+            $faction = $core->getFactionManager()->getFaction($faction);
+            if($faction !== null) {
+                if($faction->isInFaction($this)) {
+                    $this->faction = $faction;
+                    $this->factionRole = $factionRole;
+                }
+            }
+        }
         $this->balance = $balance;
         $this->lives = $lives;
         $this->reclaim = (bool)$reclaim;
@@ -96,44 +105,66 @@ class HCFPlayer extends Player {
         return false;
     }
 
-//    /**
-//     * @return mixed|null
-//     */
-//    public function getFaction() { // TODO
-//        return $this->faction;
-//    }
-//
-//    /**
-//     * @param mixed|null $faction
-//     */
-//    public function setFaction(?$faction): void { // TODO: Type hint $faction
-//        $this->faction = $faction;
-//        $faction = $faction instanceof  ? $faction->getName() : null;
-//        $uuid = $this->getRawUniqueId();
-//        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET faction = ? WHERE uuid = ?");
-//        $stmt->bind_param("ss", $faction, $uuid);
-//        $stmt->execute();
-//        $stmt->close();
-//    }
-//
-//    /**
-//     * @return int|null
-//     */
-//    public function getFactionRole(): ?int {
-//        return $this->factionRole;
-//    }
-//
-//    /**
-//     * @param int|null $role
-//     */
-//    public function setFactionRole(?int $role): void {
-//        $this->factionRole = $role;
-//        $uuid = $this->getRawUniqueId();
-//        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET factionRole = ? WHERE uuid = ?");
-//        $stmt->bind_param("is", $role, $uuid);
-//        $stmt->execute();
-//        $stmt->close();
-//    }
+    /**
+     * @return Faction|null
+     */
+    public function getFaction(): ?Faction {
+        return $this->faction;
+    }
+
+    /**
+     * @param Faction|null $faction
+     */
+    public function setFaction(?Faction $faction): void {
+        $this->faction = $faction;
+        $faction = $faction instanceof Faction ? $faction->getName() : null;
+        $uuid = $this->getRawUniqueId();
+        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET faction = ? WHERE uuid = ?");
+        $stmt->bind_param("ss", $faction, $uuid);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getFactionRole(): ?int {
+        return $this->factionRole;
+    }
+
+    /**
+     * @param int|null $role
+     */
+    public function setFactionRole(?int $role): void {
+        $this->factionRole = $role;
+        $uuid = $this->getRawUniqueId();
+        $stmt = $this->core->getProvider()->getDatabase()->prepare("UPDATE players SET factionRole = ? WHERE uuid = ?");
+        $stmt->bind_param("is", $role, $uuid);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    /**
+     * @return string
+     */
+    public function getFactionRoleToString(): string {
+        switch($this->factionRole) {
+            case Faction::RECRUIT:
+                return "";
+                break;
+            case Faction::MEMBER:
+                return "*";
+                break;
+            case Faction::OFFICER:
+                return "**";
+                break;
+            case Faction::LEADER:
+                return "***";
+                break;
+            default:
+                return "";
+        }
+    }
 
     /**
      * @return int
