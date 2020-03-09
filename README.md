@@ -75,9 +75,26 @@ HCF (Factions) -
 - Green and gray dye: Vanish On (green) and Vanish Off (gray)
 - Clock: Teleports to a random player online
 ————————————————————————————————————
+- [ ] Kits System
+- Archer Kit
+- Bard Kit
+- Rogue Kit
+- Diamond Kit
+- OP Kit (Custom enchants speed boots only)
+———————————————————————————————————
+- [ ] Crates System
+- Seasonal Crates (Summer, fall, spring, winter)
+————————————————————————————————————
+- [ ] Reclaim/Ranks
+- Kohi 
+- GrandMaster
+- Ambassador 
+- Lord
+- God 
+————————————————————————————————————
 - [ ] Miscellaneous:
 - [ ] Tali Pearl
-- [ ] Optimized Knockback
+- [ ] Optimized Knockback (0.314735)
 - [ ] Optimized Pots 
 - [ ] Optimized Pearls
 - [ ] Vanilla Enchants (Blocked and non-blocked)
@@ -92,7 +109,6 @@ HCF (Factions) -
 - [ ] Logout Villagers (Despawn in 1m)
 - [ ] Spawn tag walls (30s)
 - [ ] Deathban and lives and revive
-- [ ] Kits system
 - [ ] Spawners and crowbars
 - [ ] Redstone (Functionable)
 - [ ] Golden Apple (10s Cooldown)
